@@ -1,0 +1,94 @@
+// Angular Material theming via `mat.theme()` (Material 3 design spec).
+// Mirrors the SVGEngine monorepo playground so the embeddable library
+// components (toolbar, tool-options, inspector, menus, dialogs) inherit
+// the same palette/typography here as in the canonical playground.
+// https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+// Default ('system' / no override): both light and dark palettes emitted
+// via `light-dark()`. Browser picks based on `prefers-color-scheme`.
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+// SVGEngine's ThemeService writes `<html data-theme="light|dark">`. Because
+// `color-scheme` is non-inherited, we must re-emit `mat.theme` with an
+// explicit `theme-type` so the override propagates to every descendant
+// consuming `var(--mat-sys-*)` (toolbar, panels, canvas chrome).
+html[data-theme='light'] {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+        theme-type: light,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+html[data-theme='dark'] {
+  color-scheme: dark;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+        theme-type: dark,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  color-scheme: light dark;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  height: 100%;
+}
+
+// SVGEngine color-picker popover (mat-menu) should not show scrollbars —
+// mat-menu's default `overflow: auto` triggers them when the picker's
+// intrinsic size approaches the menu's max-height.
+.cdk-overlay-pane:has(> .svge-picker-menu-panel),
+.cdk-overlay-pane > .svge-picker-menu-panel,
+.mat-mdc-menu-panel.svge-picker-menu-panel,
+.svge-picker-menu-panel {
+  max-width: none !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.svge-picker-menu-panel .mat-mdc-menu-content,
+.svge-picker-menu-panel > .mat-mdc-menu-content {
+  padding: 0 !important;
+  overflow: visible !important;
+  max-height: none !important;
+  max-width: none !important;
+  width: max-content !important;
+}
+
+// mat-tooltip pass-through: the tooltip renders in the CDK overlay above
+// the canvas; while it lingers it can swallow the pointer and block the
+// click on the element underneath. It's purely informational, so it must
+// never capture mouse events.
+.mat-mdc-tooltip-panel,
+mat-tooltip-component,
+.mat-mdc-tooltip {
+  pointer-events: none !important;
+}

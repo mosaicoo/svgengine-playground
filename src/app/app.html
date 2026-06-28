@@ -1,0 +1,10 @@
+@if (chrome.embedded()) {
+  <router-outlet />
+} @else {
+  <div class="shell">
+    <pg-sidebar />
+    <main class="main">
+      <router-outlet />
+    </main>
+  </div>
+}
